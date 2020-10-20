@@ -47,3 +47,12 @@ func (SubCategoryRepository) FindByName(name string) (model.SubCategory, bool) {
 	}
 	return subCategory, true
 }
+
+func (SubCategoryRepository) FindByID(id uint) (model.SubCategory, bool) {
+	subCategory := model.SubCategory{}
+	result := db.First(&subCategory, id)
+	if result.Error != nil {
+		return subCategory, false
+	}
+	return subCategory, true
+}

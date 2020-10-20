@@ -3,6 +3,7 @@ package repository
 import (
 	"furst/model"
 	"time"
+  "gorm.io/gorm"
 )
 
 type PayRepository struct{}
@@ -52,8 +53,14 @@ func (PayRepository) FindByMf(mf string) bool {
 func (PayRepository) GetPaysByYM(year int, month int, mci int) []model.Pay {
 	pays := make([]model.Pay, 0)
 	jst, _ := time.LoadLocation("Asia/Tokyo")
-	startOfMonth := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, jst)
-	result := db.Where("date >= ?", startOfMonth).Where("main_category_id = ?", mci).Find(&pays)
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, jst)
+	end := start.AddDate(0, 1, -1)
+  var result *gorm.DB
+  if mci == 0 {
+    result = db.Where("date >= ? and date <= ?", start, end).Find(&pays)
+  } else {
+    result = db.Where("date >= ? and date <= ?", start, end).Where("main_category_id = ?", mci).Find(&pays)
+  }
 	if result.Error != nil {
 		panic(result.Error)
 	}
